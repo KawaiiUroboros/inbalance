@@ -17,18 +17,6 @@ function axes(width, height, margin) {
       "translate(" + width / 2 + "," + (height + two_third) + ")"
     )
     .text("X");
-  svg
-    .append("text")
-    .attr("class", "x-label2")
-    .attr(
-      "transform",
-      "translate(" +
-        (width / 2 + 3.3 * two_third) +
-        "," +
-        (height - two_third / 2) +
-        ")"
-    )
-    .text("False Positive Probability");
 
   svg
     .append("g")
@@ -41,30 +29,66 @@ function axes(width, height, margin) {
     .text("Y");
 }
 
+points = [];
 function genPoints(width, height) {
-  let xMainPurple = 90,
-    yMainPurple = 150;
-
-  let xMainGreen = 320,
-    yMainGreen = 150;
-
-  point(xMainPurple, yMainPurple, 4, 1, 6);
-  point(xMainGreen, yMainGreen, 4, 0, 6);
-
+  let purpleMain = {
+    x: 90,
+    y: 150, r: 8
+  };
+  let greenMain = {
+    x: 320,
+    y: 150, r: 8
+  };
+  point(greenMain);point(purpleMain);
   let around = 150;
-  for (let i = 0; i < 30; i++) {
-    let xPoint = Math.floor(Math.random() * around) - around / 2;
-    let yPoint = Math.floor(Math.random() * around) - around / 2;
-    let cls = Math.round(Math.random());
+  // point(xMainPurple, yMainPurple, 4, 1, 6);
+  // point(xMainGreen, yMainGreen, 4, 0, 6);
 
-    cls
-      ? point(xPoint + xMainPurple, yPoint + yMainPurple, 4, cls)
-      : point(xPoint + xMainGreen, yPoint + yMainGreen, 4, cls);
+  // function inRadius(p1, p2, r) {
+  //   return Math.sqrt(Math.pow(p2.x - p1.x, 2)
+  //   + Math.pow(p2.y - p1.y, 2)) <= r;
+  //   }
+
+  function dist(p1, p2) {
+    return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
+  }
+
+  for (let i = 0; i < 30; i++) {
+    let dot = {
+      x: Math.floor(Math.random() * around) - around / 2,
+      y: Math.floor(Math.random() * around) - around / 2,
+      r: 4,
+      cls: Math.round(Math.random())
+    };
+
+    if (dot.cls) {
+      if (dist(dot, purpleMain) <= around) {
+        dot.x += purpleMain.x;
+        dot.y += purpleMain.y;
+        points.push(dot);
+      } 
+    } else {
+      if (dist(dot, greenMain) <= around) {
+        dot.x += greenMain.x;
+        dot.y += greenMain.y;
+        points.push(dot);
+      } 
+    }
+
+    // cls
+    //   ? point(xPoint + xMainPurple, yPoint + yMainPurple, 4, cls)
+    //   : point(xPoint + xMainGreen, yPoint + yMainGreen, 4, cls);
+  }
+}
+
+function drawDots() {
+  for (let i = 0, l = points.length; i < l; i++) {
+    point(points[i]);
   }
 }
 
 // x, y -- coords; cls -- class
-function point(x, y, r, cls) {
+function point({ x, y, r, cls }) {
   let fill = cls ? "purple" : "green";
   svg
     .append("circle")
@@ -74,19 +98,28 @@ function point(x, y, r, cls) {
     .attr("fill", fill);
 }
 
-function drawSizeSep(){
-    
+function drawSizeSep({ x, y, w, len }) {
+  let fill = "purple";
+  svg
+    .append("line")
+    .attr("x1", x)
+    .attr("y1", y)
+    .attr("x2", x)
+    .attr("y2", y + len)
+    .style("stroke", fill)
 }
 
-function addSlider(min, max, step) {
-  container
-    .append("div")
+function addSlider(min, max, value, step) {
+  let label = container.append("div").append("label");
+  label.append("p").text("Accuracy");
+  label
     .append("input")
     .attr("type", "range")
     .attr("class", "size-ratio")
     .attr("min", min)
     .attr("max", max)
-    .attr("step", step);
+    .attr("step", (max - min) / step)
+    .attr("value", value);
 }
 
 size.init = function (id, width, height, margin) {
@@ -108,7 +141,16 @@ size.init = function (id, width, height, margin) {
     .append("g")
     .attr("transform", "translate(" + margin + "," + margin + ")");
 
+  let sizeSepOptions = {
+    len: height,
+    // w: 8,
+    x: width / 2,
+    y: 0, // 75 -- len / 2
+  };
+
   axes(width, height, margin);
   genPoints(width, height);
-  addSlider(0, 1, 0.2);
+  drawDots();
+  drawSizeSep(sizeSepOptions);
+  addSlider(0, 1, 0.4, 5);
 };
