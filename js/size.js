@@ -1,5 +1,3 @@
-let container, svg, x, y, line;
-
 if (typeof size === "undefined") size = {};
 
 function axes(width, height, margin) {
@@ -30,17 +28,17 @@ function axes(width, height, margin) {
 }
 
 points = [];
+let purpleMain = {
+    x: 170,
+    y: 150,
+  },
+  greenMain = {
+    x: 225,
+    y: 150,
+  };
 function genPoints(width, height, quantity, rad) {
-  let purpleMain = {
-    x: 90,
-    y: 150,
-    r: 8,
-  };
-  let greenMain = {
-    x: 320,
-    y: 150,
-    r: 8,
-  };
+  greenMain.x  = width / 2 + rad[0] - 5;
+  purpleMain.x = width / 2 - rad[1] + 5;
 
   function dist(p1, p2) {
     return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
@@ -54,36 +52,28 @@ function genPoints(width, height, quantity, rad) {
       cls: Math.round(Math.random()),
     };
 
-    // console.log("dist", dist(dot, purpleMain));
-    // console.log("boo", dist(dot, purpleMain) <= around);
-
-    if (dot.cls) {
-      if (dist(dot, purpleMain) <= rad) {
-        points.push(dot);
-      } else {
-        i--;
-      }
+    if (dot.cls && dist(dot, purpleMain) <= rad[1]) {
+      points.push(dot);
+    } else if(!dot.cls && dist(dot, greenMain) <= rad[0]) {
+      points.push(dot);
     } else {
-      if (dist(dot, greenMain) <= rad) {
-        points.push(dot);
-      } else {
-        i--;
-      }
+      i--;
     }
   }
 }
 
 function drawDots() {
   for (let i = 0, l = points.length; i < l; i++) {
-    point(points[i]);
+    drawPoint(points[i]);
   }
 }
 
 // x, y -- coords; cls -- class
-function point({ x, y, r, cls }) {
+function drawPoint({ x, y, r, cls }) {
   let fill = cls ? "purple" : "green";
   svg
     .append("circle")
+    .attr("class", `cls-${cls}`)
     .attr("cx", x)
     .attr("cy", y)
     .attr("r", r)
@@ -102,7 +92,7 @@ function drawSizeSep({ x, y, len }) {
     .style("stroke", fill);
 }
 
-function addSlider(min, max, value, step, width) {
+function addSlider(min, max, value, step) {
   let label = container.append("div").append("label");
   label.append("p").text("Accuracy");
   label
@@ -118,11 +108,32 @@ function addSlider(min, max, value, step, width) {
     });
 }
 
-function sizeProportions(){
+function sizeProportions() {
   // console.log('object', points)
-  // points()
-}
+  points = [];
+  d3.selectAll(".cls-1").remove();
+  d3.selectAll(".cls-0").remove();
 
+  //   let xScale = d3.scale
+  //     .linear()
+  //     .domain([+slider.min, +slider.max])
+  //     .range([0, w])
+  //     .clamp(true);
+  let slider = d3.select(".size-ratio")[0][0];
+  let scale = d3.scale
+    .linear()
+    .domain([+slider.min, +slider.max])
+    .range([0, maxRad])
+    .clamp(true);
+
+  let percPurple = Math.round((+slider.value / +slider.max) * 100);
+  let percGreen  = 100 - percPurple;
+  let percRad    = maxRad / 100;
+  // console.log('perc :>> ', percPurple, percGreen);
+
+  genPoints(gWidth, gHeight, 60, [percRad * percGreen, percRad * percPurple]);
+  drawDots();
+}
 // для третьего графика
 // function connectSliderSep(w) {
 //   let slider = d3.select(".size-ratio")[0][0];
@@ -139,18 +150,15 @@ function sizeProportions(){
 //   .attr("x2", `${xScale(slider.value)}px`);
 // }
 
+let container, svg, x, y, line, gWidth, gHeight, maxRad;
 size.init = function (id, width, height, margin) {
+  gWidth = width;
+  gHeight = height;
+
   container = d3.select("#" + id);
   (x = d3.scale.linear().domain([0, 1]).range([0, width])),
     (y = d3.scale.linear().domain([0, 1]).range([height, 0]));
-  // line = d3.svg
-  //   .line()
-  //   .x(function (d) {
-  //     return x(d.x);
-  //   })
-  //   .y(function (d) {
-  //     return y(d.y);
-  //   });
+
   svg = container
     .append("svg")
     .attr("width", width + 2 * margin)
@@ -160,13 +168,14 @@ size.init = function (id, width, height, margin) {
 
   let sizeSepOptions = {
     len: height,
-    // w: 8,
     x: width / 2,
-    y: 0, // 75 -- len / 2
+    y: 0,
   };
 
+  maxRad = 100;
+
   axes(width, height, margin);
-  genPoints(width, height, 60, 70);
+  genPoints(width, height, 150, [maxRad, maxRad]);
   drawDots();
   drawSizeSep(sizeSepOptions);
   addSlider(0, 1, 0.5, 50, width);
