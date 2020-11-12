@@ -6,10 +6,12 @@
    *   top-left point and the x- and y-position of the bottom-right point. In other words, the
    *   returned array is of the form [x1, y1, x2, y2]
    */
-  getBoundingBox() {
+  function getBoundingBox() {
     // x1, y1, x2, y2
     return [-5, -5, 5, 5];
   }
+
+  let props = {};
 
   /**
    * Add a data point to the canvas. The data point will take the class index currently set via the
@@ -18,25 +20,25 @@
    * @param {number} x - X-coordinate of the data point to add
    * @param {number} y - Y-coordinate of the data point to add
    */
-  addDatapoint(x, y) {
+  function  addDatapoint(x, y) {
     // Class index of new data point
-    const classIndex = this.props.classIndex;
+    const classIndex = props.classIndex;
 
     // Add new data point
-    const datapoint = this.dataset.addDatapoint([x, y]);
+    const datapoint = dataset.addDatapoint([x, y]);
     datapoint.setClassIndex(classIndex);
 
     // Add newly added data point to canvas
-    this.canvas.addDatapoint(datapoint);
+    canvas.addDatapoint(datapoint);
 
     // Classifier
-    if (this.props.autorunEnabled) {
-      this.classify(this.canvas, this.dataset);
+    if (props.autorunEnabled) {
+      classify(canvas, dataset);
     }
 
     // If the instructional overlay was being shown, hide it
-    if (this.state.showOverlay) {
-      this.setState(prevState => ({
+    if (state.showOverlay) {
+      setState(prevState => ({
         ...prevState,
         showOverlay: false,
       }));
@@ -46,30 +48,30 @@
   /**
    * Run the canvas's classifier on the associated dataset.
    */
-  classify() {
+  function classify() {
     // Only run the classifier if there are at least 2 datapoints
-    if (this.dataset.numDatapoints <= 1) {
+    if (dataset.numDatapoints <= 1) {
       return;
     }
 
     // Extract features
-    const X = this.dataset.getFeaturesArray();
+    const X = dataset.getFeaturesArray();
 
     // Extract and encode labels
-    const labels = this.dataset.getLabelsArray();
+    const labels = dataset.getLabelsArray();
     const encoder = new jsmlt.Preprocessing.LabelEncoder();
     const y = encoder.encode(labels);
 
     // Find the classifier implementation (i.e., the classification algorithm)
-    const classifier = Classifiers[this.props.classifierType]
-      .getClassifier(this.props.classifierControls);
+    const classifier = Classifiers[props.classifierType]
+      .getClassifier(props.classifierControls);
 
     // Train the classifier
     classifier.train(X, y);
 
-    if (this.props.classifierType === 'SVM') {
-      this.dataset.datapoints.forEach(x => x.setMarked(false));
-      classifier.getSupportVectors().forEach(x => this.dataset.datapoints[x].setMarked(true));
+    if (props.classifierType === 'SVM') {
+      dataset.datapoints.forEach(x => x.setMarked(false));
+      classifier.getSupportVectors().forEach(x => dataset.datapoints[x].setMarked(true));
     }
 
     // Generate predictions for grid
@@ -77,7 +79,7 @@
     const classIndexBoundaries = boundaries.calculateClassifierDecisionBoundaries(
       classifier,
       51,
-      this.getBoundingBox()
+      getBoundingBox()
     );
 
     // Convert boundary keys (class indices) to labels
@@ -87,13 +89,13 @@
     }), {});
 
     // Store class boundaries in canvas
-    this.canvas.setClassBoundaries(labelBoundaries);
+    canvas.setClassBoundaries(labelBoundaries);
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
+  function shouldComponentUpdate(nextProps, nextState) {
     if (nextProps.autorunEnabled
-        || nextProps.runStatus !== this.props.runStatus
-        || nextState.showOverlay !== this.state.showOverlay
+        || nextProps.runStatus !== props.runStatus
+        || nextState.showOverlay !== state.showOverlay
     ) {
       return true;
     }
@@ -101,10 +103,10 @@
     return false;
   }
 
-  componentDidMount() {
+  function componentDidMount() {
     // Create canvas
-    const boundingBox = this.getBoundingBox();
-    this.canvas = new jsmlt.UI.Canvas(this.refs.canvas, {
+    const boundingBox = getBoundingBox();
+    canvas = new jsmlt.UI.Canvas(refs.canvas, {
       continuousClick: true,
       x1: boundingBox[0],
       y1: boundingBox[1],
@@ -113,21 +115,21 @@
     });
 
     // Initialize dataset
-    this.dataset = new jsmlt.Data.Dataset();
+    dataset = new jsmlt.Data.Dataset();
 
     // Handle canvas clicks
-    this.canvas.addListener('click', (x, y) => this.addDatapoint(x, y));
+    canvas.addListener('click', (x, y) => addDatapoint(x, y));
   }
 
-  render() {
-    if (this.canvas) {
-      this.classify();
+  function render() {
+    if (canvas) {
+      classify();
     }
 
     return (
       <div>
         <div
-          className={`overlay ${!this.state.showOverlay && 'hide'}`}
+          className={`overlay ${!state.showOverlay && 'hide'}`}
         >
           <div>
             Click to add a data point. Change the class of new data points in the sidebar.

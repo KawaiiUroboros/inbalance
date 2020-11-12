@@ -30,54 +30,47 @@ function axes(width, height, margin) {
 }
 
 points = [];
-function genPoints(width, height) {
+function genPoints(width, height, quantity, rad) {
   let purpleMain = {
     x: 90,
-    y: 150, r: 8
+    y: 150,
+    r: 8,
   };
   let greenMain = {
     x: 320,
-    y: 150, r: 8
+    y: 150,
+    r: 8,
   };
-  point(greenMain);point(purpleMain);
-  let around = 150;
-  // point(xMainPurple, yMainPurple, 4, 1, 6);
-  // point(xMainGreen, yMainGreen, 4, 0, 6);
-
-  // function inRadius(p1, p2, r) {
-  //   return Math.sqrt(Math.pow(p2.x - p1.x, 2)
-  //   + Math.pow(p2.y - p1.y, 2)) <= r;
-  //   }
+  // let around = 50;
 
   function dist(p1, p2) {
     return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
   }
 
-  for (let i = 0; i < 30; i++) {
+  for (let i = 0; i < quantity; i++) {
     let dot = {
-      x: Math.floor(Math.random() * around) - around / 2,
-      y: Math.floor(Math.random() * around) - around / 2,
+      x: Math.floor(Math.random() * width),
+      y: Math.floor(Math.random() * height),
       r: 4,
-      cls: Math.round(Math.random())
+      cls: Math.round(Math.random()),
     };
 
-    if (dot.cls) {
-      if (dist(dot, purpleMain) <= around) {
-        dot.x += purpleMain.x;
-        dot.y += purpleMain.y;
-        points.push(dot);
-      } 
-    } else {
-      if (dist(dot, greenMain) <= around) {
-        dot.x += greenMain.x;
-        dot.y += greenMain.y;
-        points.push(dot);
-      } 
-    }
+    // console.log("dist", dist(dot, purpleMain));
+    // console.log("boo", dist(dot, purpleMain) <= around);
 
-    // cls
-    //   ? point(xPoint + xMainPurple, yPoint + yMainPurple, 4, cls)
-    //   : point(xPoint + xMainGreen, yPoint + yMainGreen, 4, cls);
+    if (dot.cls) {
+      if (dist(dot, purpleMain) <= rad) {
+        points.push(dot);
+      } else {
+        i--;
+      }
+    } else {
+      if (dist(dot, greenMain) <= rad) {
+        points.push(dot);
+      } else {
+        i--;
+      }
+    }
   }
 }
 
@@ -98,18 +91,19 @@ function point({ x, y, r, cls }) {
     .attr("fill", fill);
 }
 
-function drawSizeSep({ x, y, w, len }) {
+function drawSizeSep({ x, y, len }) {
   let fill = "purple";
   svg
     .append("line")
+    .attr("class", "sep")
     .attr("x1", x)
     .attr("y1", y)
     .attr("x2", x)
     .attr("y2", y + len)
-    .style("stroke", fill)
+    .style("stroke", fill);
 }
 
-function addSlider(min, max, value, step) {
+function addSlider(min, max, value, step, width) {
   let label = container.append("div").append("label");
   label.append("p").text("Accuracy");
   label
@@ -119,7 +113,20 @@ function addSlider(min, max, value, step) {
     .attr("min", min)
     .attr("max", max)
     .attr("step", (max - min) / step)
-    .attr("value", value);
+    .attr("value", value)
+    .on("input", () => {
+      connectSliderSep(width);
+    });
+}
+
+function connectSliderSep(w) {
+  let slider = d3.select(".size-ratio")[0][0];
+  let sep = d3.select(".sep")[0][0];
+
+  // let scale = d3.scale.linear().domain([0, 1]).range([0, w]).clamp(true);
+  // let range = [+slider.min, +slider.max];
+
+  console.log("range", range);
 }
 
 size.init = function (id, width, height, margin) {
@@ -149,8 +156,8 @@ size.init = function (id, width, height, margin) {
   };
 
   axes(width, height, margin);
-  genPoints(width, height);
+  genPoints(width, height, 60, 70);
   drawDots();
   drawSizeSep(sizeSepOptions);
-  addSlider(0, 1, 0.4, 5);
+  addSlider(0, 1, 0.5, 50), width;
 };
