@@ -41,7 +41,6 @@ function genPoints(width, height, quantity, rad) {
     y: 150,
     r: 8,
   };
-  // let around = 50;
 
   function dist(p1, p2) {
     return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
@@ -115,32 +114,43 @@ function addSlider(min, max, value, step, width) {
     .attr("step", (max - min) / step)
     .attr("value", value)
     .on("input", () => {
-      connectSliderSep(width);
+      sizeProportions();
     });
 }
 
-function connectSliderSep(w) {
-  let slider = d3.select(".size-ratio")[0][0];
-  let sep = d3.select(".sep")[0][0];
-
-  // let scale = d3.scale.linear().domain([0, 1]).range([0, w]).clamp(true);
-  // let range = [+slider.min, +slider.max];
-
-  console.log("range", range);
+function sizeProportions(){
+  // console.log('object', points)
+  // points()
 }
+
+// для третьего графика
+// function connectSliderSep(w) {
+//   let slider = d3.select(".size-ratio")[0][0];
+//   let sep = d3.select(".sep");
+
+//   let xScale = d3.scale
+//     .linear()
+//     .domain([+slider.min, +slider.max])
+//     .range([0, w])
+//     .clamp(true);
+
+//   sep
+//   .attr("x1", `${xScale(slider.value)}px`)
+//   .attr("x2", `${xScale(slider.value)}px`);
+// }
 
 size.init = function (id, width, height, margin) {
   container = d3.select("#" + id);
   (x = d3.scale.linear().domain([0, 1]).range([0, width])),
     (y = d3.scale.linear().domain([0, 1]).range([height, 0]));
-  line = d3.svg
-    .line()
-    .x(function (d) {
-      return x(d.x);
-    })
-    .y(function (d) {
-      return y(d.y);
-    });
+  // line = d3.svg
+  //   .line()
+  //   .x(function (d) {
+  //     return x(d.x);
+  //   })
+  //   .y(function (d) {
+  //     return y(d.y);
+  //   });
   svg = container
     .append("svg")
     .attr("width", width + 2 * margin)
@@ -159,5 +169,5 @@ size.init = function (id, width, height, margin) {
   genPoints(width, height, 60, 70);
   drawDots();
   drawSizeSep(sizeSepOptions);
-  addSlider(0, 1, 0.5, 50), width;
+  addSlider(0, 1, 0.5, 50, width);
 };
