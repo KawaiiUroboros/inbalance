@@ -80,6 +80,22 @@ function genPoints(width, height, quantity, rad) {
 //     .attr("fill", fill);
 // }
 
+// Data
+X1 = [];
+X2 = [];
+Y  = [];
+
+var W1, W2, B
+
+const w1 = tf.variable(tf.scalar(Math.random()))
+const w2 = tf.variable(tf.scalar(Math.random()))
+const b =  tf.variable(tf.scalar(Math.random()))
+
+const learningRate = 0.9
+const optimizer = tf.train.sgd(learningRate)
+
+var type = 1;
+
 // function drawSizeSep(w, h) {
 // line(w / 2, 0, w / 2, h);
 // let fill = "purple";
@@ -162,6 +178,36 @@ function setup() {
   .parent('#chart-cont');
 }
 
+function drawLine () {
+  let m = - (W1 / W2);
+  let c = - (B / W2);
+
+  let x1 = 0.0
+  let y1 = m * x1 + c;
+  let x2 = 1.0
+  let y2 = m * x2 + c;
+
+  let denormX1 = Math.floor(map(x1, 0, 1, 0, width))
+  let denormY1 = Math.floor(map(y1, 0, 1, 0, height))
+  let denormX2 = Math.floor(map(x2, 0, 1, 0, width))
+  let denormY2 = Math.floor(map(y2, 0, 1, 0, height))
+
+  stroke(255);
+  line(denormX1, denormY1, denormX2, denormY2);
+}
+function predict(x1, x2) {
+  return tf.sigmoid(w1.mul(x1).add(w2.mul(x2)).add(b))
+}
+
+function loss(predictions, labels) {
+  return tf.scalar(0).sub(tf.mean((labels.mul(tf.log(predictions))).add(((tf.scalar(1).sub(labels)).mul(tf.log(tf.scalar(1).sub(predictions)))))))
+}
+
+function train (x1, x2, ys, numIterations = 1) {
+  for (let iter = 0; iter < numIterations; iter++) {
+    optimizer.minimize(() => loss(predict(x1, x2), ys));
+  }
+}
 function draw() {
   background(230);
 
@@ -170,13 +216,53 @@ function draw() {
     noStroke();
     points[i].cls ? fill(99, 64, 156) : fill(20, 120, 20);
     circle(points[i].x, points[i].y, points[i].r);
+    let normX1 = map(points[i].x, 0, width, 0, 1)
+    let normX2 = map(points[i].y, 0, height, 0, 1)
+
+    X1.push(normX1);
+    X2.push(normX2);
+
+    Y.push(points[i].r);
   }
 
+  if (X1.length) {
+    tf.tidy(() => {
+      const x1 = tf.tensor(X1, [X1.length, 1])
+      const x2 = tf.tensor(X2, [X2.length, 1])
+      const ys = tf.tensor(Y, [Y.length, 1])
+
+      train(x1, x2, ys)
+
+      W1 = w1.dataSync()[0]
+      W2 = w2.dataSync()[0]
+      B = b.dataSync()[0]
+    });
+    drawLine()
+  }
   // SEPARATOR
-  stroke("purple");
-  line(gWidth / 2, 0, gWidth / 2, gHeight);
+  
   // drawSizeSep(gWidth, gHeight);
 }
+
+function drawLine () {
+  let m = - (W1 / W2);
+  let c = - (B / W2);
+
+  let x1 = 0.0
+  let y1 = m * x1 + c;
+  let x2 = 1.0
+  let y2 = m * x2 + c;
+
+  let denormX1 = Math.floor(map(x1, 0, 1, 0, width))
+  let denormY1 = Math.floor(map(y1, 0, 1, 0, height))
+  let denormX2 = Math.floor(map(x2, 0, 1, 0, width))
+  let denormY2 = Math.floor(map(y2, 0, 1, 0, height))
+
+  stroke(0);
+  console.log(denormX1, denormY1, denormX2, denormY2);
+  line(denormX1, denormY1, denormX2, denormY2);
+}
+
 // size.init = function (id, width, height, margin) {
 // gWidth = width;
 // gHeight = height;
