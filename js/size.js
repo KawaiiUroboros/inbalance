@@ -48,7 +48,7 @@ function genPoints(width, height, quantity, rad) {
     let dot = {
       x: Math.floor(Math.random() * width),
       y: Math.floor(Math.random() * height),
-      r: 4,
+      r: 8,
       cls: Math.round(Math.random()),
     };
 
@@ -158,8 +158,15 @@ function setup() {
   let cnv = createCanvas(gWidth, gHeight);
   cnv.parent("chart-cont");
   // select("#chart-cont");
-  createElement("input")
-  .parent('#chart-cont');
+
+  //SLIDER
+  let sldr = { min: 0, max: 1, val: 0.5, step: 0.2};
+  let elSldr = document.querySelector(".size-ratio");
+  elSldr.setAttribute("step", (sldr.max - sldr.min) / gWidth);
+  elSldr.addEventListener('input', sizeProportions);
+  // let elSldr = createSlider(0, 1, 0.5, (sldr.max - sldr.min) / gWidth)
+  // .parent('#chart-cont');
+  // console.log('elSldr :>> ', elSldr);
 }
 
 function draw() {
