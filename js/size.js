@@ -51,8 +51,12 @@ function genPoints(width, height, quantity, rad) {
       r: 8,
       cls: Math.round(Math.random()),
     };
-    let normX1 = dot.x/width//map(points[i].x, 0, width, 0, 1)
-    let normX2 = dot.y/height//map(points[i].y, 0, height, 0, 1)
+    let normX1 =
+      // dot.x / width;
+      map(dot.x, 0, width, 0, 1);
+    let normX2 =
+      // dot.y / height;
+      map(dot.y, 0, height, 0, 1);
     X1.push(normX1);
     X2.push(normX2);
     Y.push(dot.cls);
@@ -87,15 +91,15 @@ function genPoints(width, height, quantity, rad) {
 // Data
 X1 = [];
 X2 = [];
-Y  = [];
+Y = [];
 
-var W1, W2, B
+var W1, W2, B;
 
-const w1 = tf.variable(tf.scalar(Math.random()))
-const w2 = tf.variable(tf.scalar(Math.random()))
-const b =  tf.variable(tf.scalar(Math.random()))
-const learningRate = 0.9
-const optimizer = tf.train.sgd(learningRate)
+const w1 = tf.variable(tf.scalar(Math.random()));
+const w2 = tf.variable(tf.scalar(Math.random()));
+const b = tf.variable(tf.scalar(Math.random()));
+const learningRate = 0.9;
+const optimizer = tf.train.sgd(learningRate);
 
 var type = 1;
 
@@ -174,7 +178,8 @@ function sizeProportions() {
 // }
 let gWidth = 400,
   gHeight = 300,
-  maxRad = 100;
+  maxRad = 100,
+  isSlide = false;
 function setup() {
   genPoints(gWidth, gHeight, 150, [maxRad, maxRad]);
   let cnv = createCanvas(gWidth, gHeight);
@@ -182,46 +187,66 @@ function setup() {
   // select("#chart-cont");
 
   //SLIDER
-  let sldr = { min: 0, max: 1, val: 0.5, step: 0.2};
+  let sldr = { min: 0, max: 1, val: 0.5, step: 0.2 };
   let elSldr = document.querySelector(".size-ratio");
   elSldr.setAttribute("step", (sldr.max - sldr.min) / gWidth);
-  elSldr.addEventListener('input', sizeProportions);
-  elSldr.addEventListener('input', sizeProportions);
+  elSldr.addEventListener("input", sizeProportions);
+  elSldr.addEventListener("mousedown", () => {
+    function slideTrue() {
+      isSlide = true;
+    }
+    elSldr.addEventListener("mousemove", slideTrue);
+    elSldr.addEventListener("mouseup", () => {
+      elSldr.removeEventListener("mousemove", slideTrue);
+      isSlide = false;
+    });
+  });
   // let elSldr = createSlider(0, 1, 0.5, (sldr.max - sldr.min) / gWidth)
   // .parent('#chart-cont');
   // console.log('elSldr :>> ', elSldr);
 }
 
-function drawLine () {
-  let m = - (W1 / W2);
-  let c = - (B / W2);
+function drawLine() {
+  let m = -(W1 / W2);
+  let c = -(B / W2);
 
-  let x1 = 0.0
+  let x1 = 0.0;
   let y1 = m * x1 + c;
-  let x2 = 1.0
+  let x2 = 1.0;
   let y2 = m * x2 + c;
 
-  let denormX1 = Math.floor(map(x1, 0, 1, 0, width))
-  let denormY1 = Math.floor(map(y1, 0, 1, 0, height))
-  let denormX2 = Math.floor(map(x2, 0, 1, 0, width))
-  let denormY2 = Math.floor(map(y2, 0, 1, 0, height))
+  let denormX1 = Math.floor(map(x1, 0, 1, 0, width));
+  let denormY1 = Math.floor(map(y1, 0, 1, 0, height));
+  let denormX2 = Math.floor(map(x2, 0, 1, 0, width));
+  let denormY2 = Math.floor(map(y2, 0, 1, 0, height));
 
   stroke(255);
   line(denormX1, denormY1, denormX2, denormY2);
 }
+
 function predict(x1, x2) {
-  return tf.sigmoid(w1.mul(x1).add(w2.mul(x2)).add(b))
+  return tf.sigmoid(w1.mul(x1).add(w2.mul(x2)).add(b));
 }
 
 function loss(predictions, labels) {
-  return tf.scalar(0).sub(tf.mean((labels.mul(tf.log(predictions))).add(((tf.scalar(1).sub(labels)).mul(tf.log(tf.scalar(1).sub(predictions)))))))
+  return tf.scalar(0).sub(
+    tf.mean(
+      labels.mul(tf.log(predictions)).add(
+        tf
+          .scalar(1)
+          .sub(labels)
+          .mul(tf.log(tf.scalar(1).sub(predictions)))
+      )
+    )
+  );
 }
 
-function train (x1, x2, ys, numIterations = 1) {
+function train(x1, x2, ys, numIterations = 1) {
   for (let iter = 0; iter < numIterations; iter++) {
     optimizer.minimize(() => loss(predict(x1, x2), ys));
   }
 }
+
 function draw() {
   background(230);
 
@@ -230,41 +255,41 @@ function draw() {
     noStroke();
     points[i].cls ? fill(99, 64, 156) : fill(20, 120, 20);
     circle(points[i].x, points[i].y, points[i].r);
-   
   }
 
-  if (X1.length ) {
+  // херхерхерхер
+  if (X1.length && !isSlide) {
     tf.tidy(() => {
-      const x1 = tf.tensor(X1, [X1.length, 1])
-      const x2 = tf.tensor(X2, [X2.length, 1])
-      const ys = tf.tensor(Y, [Y.length, 1])
+      const x1 = tf.tensor(X1, [X1.length, 1]);
+      const x2 = tf.tensor(X2, [X2.length, 1]);
+      const ys = tf.tensor(Y, [Y.length, 1]);
 
-      train(x1, x2, ys)
+      train(x1, x2, ys);
 
-      W1 = w1.dataSync()[0]
-      W2 = w2.dataSync()[0]
-      B = b.dataSync()[0]
+      W1 = w1.dataSync()[0];
+      W2 = w2.dataSync()[0];
+      B = b.dataSync()[0];
     });
-    drawLine()
+    drawLine();
   }
   // SEPARATOR
-  
+
   // drawSizeSep(gWidth, gHeight);
 }
 
-function drawLine () {
-  let m = - (W1 / W2);
-  let c = - (B / W2);
+function drawLine() {
+  let m = -(W1 / W2);
+  let c = -(B / W2);
 
-  let x1 = 0.0
+  let x1 = 0.0;
   let y1 = m * x1 + c;
-  let x2 = 1.0
+  let x2 = 1.0;
   let y2 = m * x2 + c;
 
-  let denormX1 = Math.floor(map(x1, 0, 1, 0, width))
-  let denormY1 = Math.floor(map(y1, 0, 1, 0, height))
-  let denormX2 = Math.floor(map(x2, 0, 1, 0, width))
-  let denormY2 = Math.floor(map(y2, 0, 1, 0, height))
+  let denormX1 = Math.floor(map(x1, 0, 1, 0, width));
+  let denormY1 = Math.floor(map(y1, 0, 1, 0, height));
+  let denormX2 = Math.floor(map(x2, 0, 1, 0, width));
+  let denormY2 = Math.floor(map(y2, 0, 1, 0, height));
 
   stroke(0);
 
