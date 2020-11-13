@@ -51,7 +51,11 @@ function genPoints(width, height, quantity, rad) {
       r: 8,
       cls: Math.round(Math.random()),
     };
-
+    let normX1 = dot.x/width//map(points[i].x, 0, width, 0, 1)
+    let normX2 = dot.y/height//map(points[i].y, 0, height, 0, 1)
+    X1.push(normX1);
+    X2.push(normX2);
+    Y.push(dot.cls);
     if (dot.cls && dist(dot, purpleMain) <= rad[1]) {
       points.push(dot);
     } else if (!dot.cls && dist(dot, greenMain) <= rad[0]) {
@@ -90,7 +94,6 @@ var W1, W2, B
 const w1 = tf.variable(tf.scalar(Math.random()))
 const w2 = tf.variable(tf.scalar(Math.random()))
 const b =  tf.variable(tf.scalar(Math.random()))
-
 const learningRate = 0.9
 const optimizer = tf.train.sgd(learningRate)
 
@@ -128,6 +131,9 @@ function addSlider(min, max, value, step) {
 function sizeProportions() {
   // console.log('object', points)
   points = [];
+  X2 = [];
+  X1 = [];
+  Y = [];
   d3.selectAll(".cls-1").remove();
   d3.selectAll(".cls-0").remove();
 
@@ -180,6 +186,7 @@ function setup() {
   let elSldr = document.querySelector(".size-ratio");
   elSldr.setAttribute("step", (sldr.max - sldr.min) / gWidth);
   elSldr.addEventListener('input', sizeProportions);
+  elSldr.addEventListener('input', sizeProportions);
   // let elSldr = createSlider(0, 1, 0.5, (sldr.max - sldr.min) / gWidth)
   // .parent('#chart-cont');
   // console.log('elSldr :>> ', elSldr);
@@ -223,16 +230,10 @@ function draw() {
     noStroke();
     points[i].cls ? fill(99, 64, 156) : fill(20, 120, 20);
     circle(points[i].x, points[i].y, points[i].r);
-    let normX1 = map(points[i].x, 0, width, 0, 1)
-    let normX2 = map(points[i].y, 0, height, 0, 1)
-
-    X1.push(normX1);
-    X2.push(normX2);
-
-    Y.push(points[i].r);
+   
   }
 
-  if (X1.length) {
+  if (X1.length ) {
     tf.tidy(() => {
       const x1 = tf.tensor(X1, [X1.length, 1])
       const x2 = tf.tensor(X2, [X2.length, 1])
@@ -266,7 +267,7 @@ function drawLine () {
   let denormY2 = Math.floor(map(y2, 0, 1, 0, height))
 
   stroke(0);
-  console.log(denormX1, denormY1, denormX2, denormY2);
+
   line(denormX1, denormY1, denormX2, denormY2);
 }
 
