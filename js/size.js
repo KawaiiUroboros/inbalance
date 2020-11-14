@@ -29,9 +29,9 @@ if (typeof size === "undefined") size = {};
 
 points = [];
 let purpleMain = {
-    x: 170,
-    y: 150,
-  },
+  x: 170,
+  y: 150,
+},
   greenMain = {
     x: 225,
     y: 150,
@@ -52,11 +52,11 @@ function genPoints(width, height, quantity, rad) {
       cls: Math.round(Math.random()),
     };
     let normX1 =
-      // dot.x / width;
-      map(dot.x, 0, width, 0, 1);
+      dot.x / width;
+      //map(dot.x, 0, width, 0, 1);
     let normX2 =
-      // dot.y / height;
-      map(dot.y, 0, height, 0, 1);
+      dot.y / height;
+      //map(dot.y, 0, height, 0, 1);
     X1.push(normX1);
     X2.push(normX2);
     Y.push(dot.cls);
@@ -138,6 +138,7 @@ function sizeProportions() {
   X2 = [];
   X1 = [];
   Y = [];
+
   d3.selectAll(".cls-1").remove();
   d3.selectAll(".cls-0").remove();
 
@@ -219,6 +220,10 @@ function drawLine() {
   let denormY1 = Math.floor(map(y1, 0, 1, 0, height));
   let denormX2 = Math.floor(map(x2, 0, 1, 0, width));
   let denormY2 = Math.floor(map(y2, 0, 1, 0, height));
+  //let denormX1 = x1 * width;
+  //let denormY1 = y1 * height;
+  //let denormX2 = x2 * width;
+  //let denormY2 = y2 * height;
 
   stroke(255);
   line(denormX1, denormY1, denormX2, denormY2);
