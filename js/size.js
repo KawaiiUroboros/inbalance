@@ -116,21 +116,21 @@ var type = 1;
 //   .style("stroke", fill);
 // }
 
-function addSlider(min, max, value, step) {
-  let label = container.append("div").append("label");
-  label.append("p").text("Accuracy");
-  label
-    .append("input")
-    .attr("type", "range")
-    .attr("class", "size-ratio")
-    .attr("min", min)
-    .attr("max", max)
-    .attr("step", (max - min) / step)
-    .attr("value", value)
-    .on("input", () => {
-      sizeProportions();
-    });
-}
+// function addSlider(min, max, value, step) {
+//   let label = container.append("div").append("label");
+//   label.append("p").text("Accuracy");
+//   label
+//     .append("input")
+//     .attr("type", "range")
+//     .attr("class", "size-ratio")
+//     .attr("min", min)
+//     .attr("max", max)
+//     .attr("step", (max - min) / step)
+//     .attr("value", value)
+//     .on("input", () => {
+//       sizeProportions();
+//     });
+// }
 
 function sizeProportions() {
   // console.log('object', points)
@@ -139,15 +139,17 @@ function sizeProportions() {
   X1 = [];
   Y = [];
 
-  d3.selectAll(".cls-1").remove();
-  d3.selectAll(".cls-0").remove();
+  // selectAll(".cls-1").remove();
+  // selectAll(".cls-0").remove();
+  // removeElements('.cls-1');
+  // removeElements('.cls-0');
 
   //   let xScale = d3.scale
   //     .linear()
   //     .domain([+slider.min, +slider.max])
   //     .range([0, w])
   //     .clamp(true);
-  let slider = d3.select(".size-ratio")[0][0];
+  let slider = select(".size-ratio").elt;
   // let scale = d3.scale
   //   .linear()
   //   .domain([+slider.min, +slider.max])
@@ -155,8 +157,8 @@ function sizeProportions() {
   //   .clamp(true);
 
   let percPurple = Math.round((+slider.value / +slider.max) * 100);
-  let percGreen = 100 - percPurple;
-  let percRad = maxRad / 100;
+  let percGreen  = 100 - percPurple;
+  let percRad    = maxRad / 100;
   // console.log('perc :>> ', percPurple, percGreen);
 
   genPoints(gWidth, gHeight, 60, [percRad * percGreen, percRad * percPurple]);
@@ -182,18 +184,20 @@ let gWidth = 400,
   maxRad = 100,
   isSlide = false;
 function setup() {
-  genPoints(gWidth, gHeight, 150, [maxRad, maxRad]);
+  genPoints(gWidth, gHeight, 150, [maxRad / 2, maxRad / 2]);
   let cnv = createCanvas(gWidth, gHeight);
   cnv.parent("chart-cont");
   // select("#chart-cont");
 
   //SLIDER
-  let sldr = { min: 0, max: 1, val: 0.5, step: 0.2 };
+  let sldr = { min: 0, max: 1, val: 0.5 };
   let elSldr = document.querySelector(".size-ratio");
   elSldr.setAttribute("step", (sldr.max - sldr.min) / gWidth);
+  elSldr.setAttribute("value", sldr.val);
   elSldr.addEventListener("input", sizeProportions);
   elSldr.addEventListener("mousedown", () => {
     function slideTrue() {
+      // console.log('object :>> ', elSldr.value);
       isSlide = true;
     }
     elSldr.addEventListener("mousemove", slideTrue);
