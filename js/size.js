@@ -28,17 +28,11 @@ if (typeof size === "undefined") size = {};
 // }
 
 points = [];
-let purpleMain = {
-  x: 170,
-  y: 150,
-},
-  greenMain = {
-    x: 225,
-    y: 150,
-  };
+let purpleMain = { },
+  greenMain    = { };
 function genPoints(width, height, quantity, rad) {
-  greenMain.x = width / 2 + rad[0] - 5;
-  purpleMain.x = width / 2 - rad[1] + 5;
+  greenMain.x = width / 2 + rad[0] / 2;
+  purpleMain.x = width / 2 - rad[1] / 2;
 
   function dist(p1, p2) {
     return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
@@ -61,13 +55,13 @@ function genPoints(width, height, quantity, rad) {
     if (dot.cls && dist(dot, purpleMain) <= rad[1]) {
       points.push(dot);
       X1.push(normX1);
-    console.log(dot.x)
+    // console.log(dot.x)
     X2.push(normX2);
     Y.push(dot.cls);
     } else if (!dot.cls && dist(dot, greenMain) <= rad[0]) {
       points.push(dot);
       X1.push(normX1);
-    console.log(dot.x)
+    // console.log(dot.x)
     X2.push(normX2);
     Y.push(dot.cls);
     } else {
@@ -185,11 +179,13 @@ function sizeProportions() {
 //   .attr("x1", `${xScale(slider.value)}px`)
 //   .attr("x2", `${xScale(slider.value)}px`);
 // }
-let gWidth = 400,
-  gHeight = 300,
-  maxRad = 100,
+let gWidth = 800,
+  gHeight = 500,
+  maxRad = 200,
   isSlide = false;
 function setup() {
+  greenMain.y = gHeight / 2;
+  purpleMain.y = gHeight / 2;
   genPoints(gWidth, gHeight, 150, [maxRad / 2, maxRad / 2]);
   let cnv = createCanvas(gWidth, gHeight);
   cnv.parent("chart-cont");
