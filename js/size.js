@@ -52,18 +52,24 @@ function genPoints(width, height, quantity, rad) {
       cls: Math.round(Math.random()),
     };
     let normX1 =
-      dot.x / width;
-      //map(dot.x, 0, width, 0, 1);
+      //dot.x / width;
+      map(dot.x, 0, width, 0, 1);
     let normX2 =
-      dot.y / height;
-      //map(dot.y, 0, height, 0, 1);
-    X1.push(normX1);
-    X2.push(normX2);
-    Y.push(dot.cls);
+      //dot.y / height;
+      map(dot.y, 0, height, 0, 1);
+    
     if (dot.cls && dist(dot, purpleMain) <= rad[1]) {
       points.push(dot);
+      X1.push(normX1);
+    console.log(dot.x)
+    X2.push(normX2);
+    Y.push(dot.cls);
     } else if (!dot.cls && dist(dot, greenMain) <= rad[0]) {
       points.push(dot);
+      X1.push(normX1);
+    console.log(dot.x)
+    X2.push(normX2);
+    Y.push(dot.cls);
     } else {
       i--;
     }
@@ -215,7 +221,6 @@ function drawLine() {
   let y1 = m * x1 + c;
   let x2 = 1.0;
   let y2 = m * x2 + c;
-
   let denormX1 = Math.floor(map(x1, 0, 1, 0, width));
   let denormY1 = Math.floor(map(y1, 0, 1, 0, height));
   let denormX2 = Math.floor(map(x2, 0, 1, 0, width));
