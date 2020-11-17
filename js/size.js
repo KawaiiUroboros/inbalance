@@ -28,8 +28,8 @@ if (typeof size === "undefined") size = {};
 // }
 
 points = [];
-let purpleMain = { },
-  greenMain    = { };
+let purpleMain = {},
+  greenMain = {};
 function genPoints(width, height, quantity, rad) {
   greenMain.x = width / 2 + rad[0] - 5;
   purpleMain.x = width / 2 - rad[1] + 5;
@@ -51,19 +51,19 @@ function genPoints(width, height, quantity, rad) {
     let normX2 =
       //dot.y / height;
       map(dot.y, 0, height, 0, 1);
-    
+
     if (dot.cls && dist(dot, purpleMain) <= rad[1]) {
       points.push(dot);
       X1.push(normX1);
-    // console.log(dot.x)
-    X2.push(normX2);
-    Y.push(dot.cls);
+      // console.log(dot.x)
+      X2.push(normX2);
+      Y.push(dot.cls);
     } else if (!dot.cls && dist(dot, greenMain) <= rad[0]) {
       points.push(dot);
       X1.push(normX1);
-    // console.log(dot.x)
-    X2.push(normX2);
-    Y.push(dot.cls);
+      // console.log(dot.x)
+      X2.push(normX2);
+      Y.push(dot.cls);
     } else {
       i--;
     }
@@ -157,8 +157,8 @@ function sizeProportions() {
   //   .clamp(true);
 
   let percPurple = Math.round((+slider.value / +slider.max) * 100);
-  let percGreen  = 100 - percPurple;
-  let percRad    = maxRad / 100;
+  let percGreen = 100 - percPurple;
+  let percRad = maxRad / 100;
   // console.log('perc :>> ', percPurple, percGreen);
 
   genPoints(gWidth, gHeight, 60, [percRad * percGreen, percRad * percPurple]);
@@ -213,26 +213,27 @@ function setup() {
   // console.log('elSldr :>> ', elSldr);
 }
 
-function drawLine() {
-  let m = -(W1 / W2);
-  let c = -(B / W2);
+// function drawLine() {
+//   // console.log('lineCoords :>> ', lineCoords);
+//   let m = -(W1 / W2);
+//   let c = -(B / W2);
 
-  let x1 = 0.0;
-  let y1 = m * x1 + c;
-  let x2 = 1.0;
-  let y2 = m * x2 + c;
-  let denormX1 = Math.floor(map(x1, 0, 1, 0, width));
-  let denormY1 = Math.floor(map(y1, 0, 1, 0, height));
-  let denormX2 = Math.floor(map(x2, 0, 1, 0, width));
-  let denormY2 = Math.floor(map(y2, 0, 1, 0, height));
-  //let denormX1 = x1 * width;
-  //let denormY1 = y1 * height;
-  //let denormX2 = x2 * width;
-  //let denormY2 = y2 * height;
+//   let x1 = 0.0;
+//   let y1 = m * x1 + c;
+//   let x2 = 1.0;
+//   let y2 = m * x2 + c;
+//   let denormX1 = Math.floor(map(x1, 0, 1, 0, width));
+//   let denormY1 = Math.floor(map(y1, 0, 1, 0, height));
+//   let denormX2 = Math.floor(map(x2, 0, 1, 0, width));
+//   let denormY2 = Math.floor(map(y2, 0, 1, 0, height));
+//   //let denormX1 = x1 * width;
+//   //let denormY1 = y1 * height;
+//   //let denormX2 = x2 * width;
+//   //let denormY2 = y2 * height;
 
-  stroke(255);
-  line(denormX1, denormY1, denormX2, denormY2);
-}
+//   stroke(255);
+//   line(denormX1, denormY1, denormX2, denormY2);
+// }
 
 function predict(x1, x2) {
   return tf.sigmoid(w1.mul(x1).add(w2.mul(x2)).add(b));
@@ -287,6 +288,41 @@ function draw() {
   // drawSizeSep(gWidth, gHeight);
 }
 
+function coloringSepSides(x1, y1, x2, y2) {
+  noStroke();
+  colorMode(RGB, 255, 255, 255, 1);
+  fill(99, 64, 156, .2);
+  
+  // PURPLE CLASS
+  beginShape();
+  vertex(x1, y1);
+  vertex(x2, y2);
+  vertex(0, gHeight);
+  vertex(0, 0);
+  beginContour();
+  vertex(x1, y1);
+  vertex(x2, y2);
+  vertex(0, gHeight);
+  vertex(0, 0);
+  endContour();
+  endShape(CLOSE);
+
+  //GREEN CLASS
+  fill(20, 120, 20, .2);
+  beginShape();
+  vertex(x1, y1);
+  vertex(gWidth, 0);
+  vertex(x2, y2);
+  vertex(gWidth, gHeight);
+  beginContour();
+  vertex(x1, y1);
+  vertex(x2, y2);
+  vertex(gWidth, 0);
+  vertex(gWidth, gHeight);
+  endContour();
+  endShape(CLOSE);
+}
+
 function drawLine() {
   let m = -(W1 / W2);
   let c = -(B / W2);
@@ -304,6 +340,31 @@ function drawLine() {
   stroke(0);
 
   line(denormX1, denormY1, denormX2, denormY2);
+
+  coloringSepSides(denormX1, denormY1, denormX2, denormY2);
+  // translate(50, 50);
+  // noStroke();
+  // // fill(99, 64, 156) : fill(20, 120, 20);
+  // colorMode(RGB, 255, 255, 255, 1);
+  // fill(99, 64, 156, .2);
+  // beginShape();
+  // // Exterior part of shape, clockwise winding
+  // vertex(denormX1, denormY1);
+  // vertex(denormX2, denormY2);
+  // vertex(0, gHeight);
+  // vertex(0, 0);
+  // // Interior part of shape, counter-clockwise winding
+  // beginContour();
+  // vertex(denormX1, denormY1);
+  // vertex(denormX2, denormY2);
+  // vertex(0, gHeight);
+  // vertex(0, 0);
+  // // vertex(-40, -40);
+  // // vertex(40, -40);
+  // // vertex(40, 40);
+  // // vertex(-40, 40);
+  // endContour();
+  // endShape(CLOSE);
 }
 
 // size.init = function (id, width, height, margin) {
