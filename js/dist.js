@@ -5,8 +5,8 @@ let clonePoints;
 let purpleMain = {},
   greenMain = {};
 function genPoints(width, height, quantity, rad) {
-  greenMain.x = width / 2 + rad[0] - 100;
-  purpleMain.x = width / 2 - rad[1] + 100;
+  greenMain.x = width / 2 + rad[0];
+  purpleMain.x = width / 2 - rad[1];
 
   function dist(p1, p2) {
     return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
@@ -57,8 +57,8 @@ function moveClss() {
   let sliderValue = slider.value;
   let cnvSegmentLen = gWidth / sliderStep / 6500;
 
-  purpleMain.offset = -sliderValue * cnvSegmentLen;
-  greenMain.offset = sliderValue * cnvSegmentLen;
+  purpleMain.offset = sliderValue * cnvSegmentLen;
+  greenMain.offset = -sliderValue * cnvSegmentLen;
 }
 
 function resetPosClss() {
