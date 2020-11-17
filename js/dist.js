@@ -52,37 +52,6 @@ const optimizer = tf.train.sgd(learningRate);
 
 var type = 1;
 
-// function sizeProportions() {
-//   points = [];
-//   X2 = [];
-//   X1 = [];
-//   Y = [];
-
-//   let slider = select(".dist-ratio").elt;
-
-//   let percPurple = Math.round((+slider.value / +slider.max) * 100);
-//   let percGreen = 100 - percPurple;
-//   let percRad = maxRad / 100;
-
-//   genPoints(gWidth, gHeight, 60, [percRad * percGreen, percRad * percPurple]);
-// }
-
-// второй график
-// function connectSliderSep(w) {
-//   let slider = d3.select(".size-ratio")[0][0];
-//   let sep = d3.select(".sep");
-
-//   let xScale = d3.scale
-//     .linear()
-//     .domain([+slider.min, +slider.max])
-//     .range([0, w])
-//     .clamp(true);
-
-//   sep
-//   .attr("x1", `${xScale(slider.value)}px`)
-//   .attr("x2", `${xScale(slider.value)}px`);
-// }
-
 let shiftXSep = 0;
 function moveSliderSep() {
   shiftXSep = 0;
@@ -92,6 +61,12 @@ function moveSliderSep() {
   let cnvSegmentLen = gWidth / sliderStep / 1000;
 
   shiftXSep = sliderValue * cnvSegmentLen;
+}
+
+function resetPosSep() {
+    shiftXSep = 0;
+    let elSldr = document.querySelector(".dist-ratio");
+    elSldr.setAttribute("value", 0);
 }
 
 let gWidth = 800,
@@ -212,7 +187,7 @@ function drawLine() {
   stroke(0);
 
   shiftXSep ? ((denormX1 += shiftXSep), (denormX2 += shiftXSep)) : null;
-  //   console.log('shiftXSep', shiftXSep)
+
   line(denormX1, denormY1, denormX2, denormY2);
 
   coloringSepSides(denormX1, denormY1, denormX2, denormY2);
