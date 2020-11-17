@@ -1,1 +1,15 @@
-label, label p { margin: 0 }
+label,
+label p {
+  margin: 0;
+}
+
+.btn-info a {
+  color: white;
+  font-weight: bold;
+}
+
+.cont {
+  position: absolute;
+  left: 40%;
+  top: 50%;
+}

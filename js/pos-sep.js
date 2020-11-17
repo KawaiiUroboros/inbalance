@@ -1,7 +1,6 @@
 if (typeof size === "undefined") size = {};
 
 points = [];
-let clonePoints;
 let purpleMain = {},
   greenMain = {};
 function genPoints(width, height, quantity, rad) {
@@ -22,10 +21,12 @@ function genPoints(width, height, quantity, rad) {
     let normX1 = map(dot.x, 0, width, 0, 1);
     let normX2 = map(dot.y, 0, height, 0, 1);
 
-    if (
-      (dot.cls && dist(dot, purpleMain) <= rad[1]) ||
-      (!dot.cls && dist(dot, greenMain) <= rad[0])
-    ) {
+    if (dot.cls && dist(dot, purpleMain) <= rad[1]) {
+      points.push(dot);
+      X1.push(normX1);
+      X2.push(normX2);
+      Y.push(dot.cls);
+    } else if (!dot.cls && dist(dot, greenMain) <= rad[0]) {
       points.push(dot);
       X1.push(normX1);
       X2.push(normX2);
@@ -51,42 +52,39 @@ const optimizer = tf.train.sgd(learningRate);
 
 var type = 1;
 
-function moveClss() {
-  let slider = select(".dist-ratio").elt;
+let shiftXSep = 0;
+function moveSliderSep() {
+  shiftXSep = 0;
+  let slider = select(".pos-ratio").elt;
   let sliderStep = slider.step;
   let sliderValue = slider.value;
-  let cnvSegmentLen = gWidth / sliderStep / 3100;
+  let cnvSegmentLen = gWidth / sliderStep / 1000;
 
-  purpleMain.offset = -sliderValue * cnvSegmentLen;
-  greenMain.offset = sliderValue * cnvSegmentLen;
+  shiftXSep = sliderValue * cnvSegmentLen;
 }
 
-function resetPosClss() {
-  greenMain.offset = 0;
-  purpleMain.offset = 0;
-  let slider = document.querySelector(".dist-ratio");
-  slider.value = 0.5;
+function resetPosSep() {
+  shiftXSep = 0;
+  let elSldr = document.querySelector(".pos-ratio");
+  elSldr.value = 0;
 }
 
 let gWidth = 800,
   gHeight = 500,
   maxRad = 200;
 function setup() {
-  greenMain.offset = 0;
-  purpleMain.offset = 0;
   greenMain.y = gHeight / 2;
   purpleMain.y = gHeight / 2;
   genPoints(gWidth, gHeight, 150, [maxRad / 2, maxRad / 2]);
-  clonePoints = points.slice(0);
   let cnv = createCanvas(gWidth, gHeight);
-  cnv.parent("chart-dist-cont");
+  cnv.parent("chart-pos-cont");
 
   //SLIDER
-  let sldr = { min: 0, max: 1, val: 0.5 };
-  let elSldr = document.querySelector(".dist-ratio");
+  let sldr = { min: -0.5, max: 0.5, val: 0 };
+  let elSldr = document.querySelector(".pos-ratio");
   elSldr.setAttribute("step", (sldr.max - sldr.min) / gWidth);
   elSldr.setAttribute("value", sldr.val);
-  elSldr.addEventListener("input", moveClss);
+  elSldr.addEventListener("input", moveSliderSep);
 }
 
 function predict(x1, x2) {
@@ -118,11 +116,8 @@ function draw() {
   //POINTS
   for (let i = 0, l = points.length; i < l; i++) {
     noStroke();
-    //              фиолетовый          зеленый
     points[i].cls ? fill(99, 64, 156) : fill(20, 120, 20);
-    points[i].cls
-      ? circle(points[i].x + purpleMain.offset, points[i].y, points[i].r)
-      : circle(points[i].x + greenMain.offset, points[i].y, points[i].r);
+    circle(points[i].x, points[i].y, points[i].r);
   }
   if (X1.length) {
     tf.tidy(() => {
@@ -190,6 +185,8 @@ function drawLine() {
   let denormY2 = Math.floor(map(y2, 0, 1, 0, height));
 
   stroke(0);
+
+  shiftXSep ? ((denormX1 += shiftXSep), (denormX2 += shiftXSep)) : null;
 
   line(denormX1, denormY1, denormX2, denormY2);
 

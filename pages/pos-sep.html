@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Расстояние</title>
+    <title>Пропорции размера</title>
 
     <link
       rel="stylesheet"
@@ -11,7 +11,7 @@
     />
 
     <link rel="stylesheet" href="../styles.css" />
-    <link rel="stylesheet" href="../css/dist.css" />
+    <link rel="stylesheet" href="../css/pos-sep.css" />
     <link
       rel="shortcut icon"
       href="../assets/favicon.ico"
@@ -25,15 +25,15 @@
     <div class="container">
       <div class="card">
         <div class="card-body">
-          <h5 class="card-title">Расстояние</h5>
-          <div id="chart-dist-cont"></div>
+          <h5 class="card-title">Положение раделяющей плоскости</h5>
+          <div id="chart-pos-cont"></div>
           <label
             ><p>Accuracy</p>
-            <input type="range" class="dist-ratio" min="0" max="1"
+            <input type="range" class="pos-ratio" min="-0.5" max="0.5"
           /></label>
           <button
             class="reset"
-            onclick="resetPosClss()"
+            onclick="resetPosSep()"
             title="Отменить смещение"
           >
             <img src="../assets/reset.png" alt="Отменить смещение" />
@@ -42,7 +42,6 @@
       </div>
     </div>
 
-    <script src="../js/dist.js"></script>
+    <script src="../js/pos-sep.js"></script>
   </body>
-</html>
 </html>
