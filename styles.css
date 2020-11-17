@@ -1,2 +1,1 @@
-label { margin: 0 }
-label p { margin: 0 }
+label, label p { margin: 0 }
