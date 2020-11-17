@@ -5,8 +5,8 @@ let clonePoints;
 let purpleMain = {},
   greenMain = {};
 function genPoints(width, height, quantity, rad) {
-  greenMain.x = width / 2 + rad[0] - 5;
-  purpleMain.x = width / 2 - rad[1] + 5;
+  greenMain.x = width / 2 + rad[0] - 100;
+  purpleMain.x = width / 2 - rad[1] + 100;
 
   function dist(p1, p2) {
     return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
@@ -55,7 +55,7 @@ function moveClss() {
   let slider = select(".dist-ratio").elt;
   let sliderStep = slider.step;
   let sliderValue = slider.value;
-  let cnvSegmentLen = gWidth / sliderStep / 3100;
+  let cnvSegmentLen = gWidth / sliderStep / 6500;
 
   purpleMain.offset = -sliderValue * cnvSegmentLen;
   greenMain.offset = sliderValue * cnvSegmentLen;
@@ -65,7 +65,7 @@ function resetPosClss() {
   greenMain.offset = 0;
   purpleMain.offset = 0;
   let slider = document.querySelector(".dist-ratio");
-  slider.value = 0.5;
+  slider.value = 0;
 }
 
 let gWidth = 800,
@@ -76,13 +76,14 @@ function setup() {
   purpleMain.offset = 0;
   greenMain.y = gHeight / 2;
   purpleMain.y = gHeight / 2;
+
   genPoints(gWidth, gHeight, 150, [maxRad / 2, maxRad / 2]);
   clonePoints = points.slice(0);
   let cnv = createCanvas(gWidth, gHeight);
   cnv.parent("chart-dist-cont");
 
   //SLIDER
-  let sldr = { min: 0, max: 1, val: 0.5 };
+  let sldr = { min: 0, max: 1, val: 0 };
   let elSldr = document.querySelector(".dist-ratio");
   elSldr.setAttribute("step", (sldr.max - sldr.min) / gWidth);
   elSldr.setAttribute("value", sldr.val);
