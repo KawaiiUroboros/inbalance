@@ -188,7 +188,7 @@ function setup() {
   purpleMain.y = gHeight / 2;
   genPoints(gWidth, gHeight, 150, [maxRad / 2, maxRad / 2]);
   let cnv = createCanvas(gWidth, gHeight);
-  cnv.parent("chart-cont");
+  cnv.parent("chart-size-cont");
   // select("#chart-cont");
 
   //SLIDER
