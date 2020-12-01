@@ -1,15 +1,12 @@
-
-
-
-var sketchDist = function(p){
+let sketchDist = function(p){
  
     p.points = [];
     p.clonePoints;
-    p.purpleMain = {};
-    p.greenMain = {};
+    p.mainCls1 = {};
+    p.mainCls2 = {};
     p.genPoints = function(width, height, quantity, rad) {
-      p.greenMain.x = width / 2 + rad[0];
-      p.purpleMain.x = width / 2 - rad[1];
+      p.mainCls1.x = 0 + rad[1] * 2;
+      p.mainCls2.x = width - rad[0] * 2;
     
       p.dist= function(p1, p2) {
         return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
@@ -19,15 +16,15 @@ var sketchDist = function(p){
         let dot = {
           x: Math.floor(Math.random() * width),
           y: Math.floor(Math.random() * height),
-          r: 8,
+          r: 13,
           cls: Math.round(Math.random()),
         };
         let normX1 = p.map(dot.x, 0, width, 0, 1);
         let normX2 = p.map(dot.y, 0, height, 0, 1);
     
         if (
-          (dot.cls && p.dist(dot, p.purpleMain) <= rad[1]) ||
-          (!dot.cls && p.dist(dot,p.greenMain) <= rad[0])
+          (dot.cls && p.dist(dot, p.mainCls1) <= rad[1]) ||
+          (!dot.cls && p.dist(dot,p.mainCls2) <= rad[0])
         ) {
           p.points.push(dot);
           p.X1.push(normX1);
@@ -57,27 +54,30 @@ var sketchDist = function(p){
       let slider = p.select(".dist-ratio").elt;
       let sliderStep = slider.step;
       let sliderValue = slider.value;
-      let cnvSegmentLen = p.gWidth / sliderStep / 6500;
+      let cnvSegmentLen = p.gWidth / sliderStep / 5000;
     
-      p.purpleMain.offset = sliderValue * cnvSegmentLen;
-      p.greenMain.offset = -sliderValue * cnvSegmentLen;
+      p.mainCls1.offset = -sliderValue * cnvSegmentLen;
+      p.mainCls2.offset = sliderValue * cnvSegmentLen;
+      
+      p.points = [];
+      p.genPoints(p.gWidth, p.gHeight, 150, [p.maxRad / 2, p.maxRad / 2]);
     }
     
     p.resetPosClss = function() {
-      p.greenMain.offset = 0;
-      p.purpleMain.offset = 0;
+      p.mainCls2.offset = 0;
+      p.mainCls1.offset = 0;
       let slider = document.querySelector(".dist-ratio");
       slider.value = 0;
     }
     
     p.gWidth = 800,
     p.gHeight = 500,
-    p.maxRad = 200;
+    p.maxRad = 300;
     p.setup = function() {
-      p.greenMain.offset = 0;
-      p.purpleMain.offset = 0;
-      p.greenMain.y = p.gHeight / 2;
-      p.purpleMain.y = p.gHeight / 2;
+      p.mainCls2.offset = 0;
+      p.mainCls1.offset = 0;
+      p.mainCls2.y = p.gHeight / 2;
+      p.mainCls1.y = p.gHeight / 2;
     
       p.genPoints(p.gWidth, p.gHeight, 150, [p.maxRad / 2, p.maxRad / 2]);
       clonePoints = p.points.slice(0);
@@ -115,18 +115,9 @@ var sketchDist = function(p){
       }
     }
     
-    p.draw=function() {
+    p.draw = function() {
       p.background(230);
-    
-      //POINTS
-      for (let i = 0, l = p.points.length; i < l; i++) {
-        p.noStroke();
-        //              фиолетовый          зеленый
-        p.points[i].cls ? p.fill(99, 64, 156) : p.fill(20, 120, 20);
-        p.points[i].cls
-          ? p.circle(p.points[i].x + p.purpleMain.offset, p.points[i].y,p.points[i].r)
-          : p.circle(p.points[i].x + p.greenMain.offset,  p.points[i].y, p.points[i].r);
-      }
+
       if (p.X1.length) {
         tf.tidy(() => {
           const x1 = tf.tensor(p.X1, [p.X1.length, 1]);
@@ -141,14 +132,37 @@ var sketchDist = function(p){
         });
         p.drawLine();
       }
+      //POINTS
+      for (let i = 0, l = p.points.length; i < l; i++) {
+        p.noStroke();
+        //              фиолетовый          зеленый
+        // p.points[i].cls ? p.fill(99, 64, 156) : p.fill(20, 120, 20);
+        // p.points[i].cls ? p.fill(255, 255, 255) : p.fill(20, 120, 20);
+        switch(p.points[i].cls){
+          case 1:
+            p.strokeWeight(4);
+            p.stroke(255, 255, 255);
+            p.fill(255, 230, 3);
+            break;
+          case 0:
+            p.strokeWeight(1.5);
+            p.stroke(255, 255, 255);
+            p.fill(42, 118, 216);
+            break;
+        }
+        p.points[i].cls
+          ? p.circle(p.points[i].x + p.mainCls1.offset, p.points[i].y, p.points[i].r)
+          : p.circle(p.points[i].x + p.mainCls2.offset,  p.points[i].y, p.points[i].r);
+      }
     }
     
     p.coloringSepSides = function(x1, y1, x2, y2) {
       p.noStroke();
       p.colorMode(p.RGB, 255, 255, 255, 1);
-      p.fill(99, 64, 156, 0.2);
-    
-      // PURPLE CLASS
+      
+      // CLASS 1
+      p.fill(255, 230, 3, 1);
+
       p.beginShape();
       p.vertex(x1, y1);
       p.vertex(x2, y2);
@@ -162,8 +176,9 @@ var sketchDist = function(p){
       p.endContour();
       p.endShape(p.CLOSE);
     
-      //GREEN CLASS
-      p.fill(20, 120, 20, 0.2);
+      // CLASS 2
+      p.fill(42, 118, 216, 1);
+
       p.beginShape();
       p.vertex(x1, y1);
       p.vertex(p.gWidth, 0);
@@ -198,12 +213,12 @@ var sketchDist = function(p){
     
       p.coloringSepSides(denormX1, denormY1, denormX2, denormY2);
     }
-    }
-var sketch = function(p){
+  }
+let sketch = function(p){
  
   p.setup = function(){
-    p.greenMain.y = p.gHeight / 2;
-    p.purpleMain.y = p.gHeight / 2;
+    p.mainCls2.y = p.gHeight / 2;
+    p.mainCls1.y = p.gHeight / 2;
     p.genPoints(p.gWidth, p.gHeight, 150, [p.maxRad / 2, p.maxRad / 2]);
     let cnv = p.createCanvas(p.gWidth, p.gHeight);
     cnv.parent("chart-size-cont");
@@ -254,8 +269,8 @@ var sketch = function(p){
       }
     }
   }
-  p.purpleMain = {},
-  p.greenMain = {};
+  p.mainCls1 = {},
+  p.mainCls2 = {};
   p.points = [];
   p.drawLine = function() {
     let m = -(p.W1 / p.W2);
@@ -278,8 +293,8 @@ var sketch = function(p){
     p.coloringSepSides(denormX1, denormY1, denormX2, denormY2);
   }
   p.genPoints = function(width, height, quantity, rad) {
-    p.greenMain.x = width / 2 + rad[0] - 5;
-    p.purpleMain.x = width / 2 - rad[1] + 5;
+    p.mainCls2.x = width / 2 + rad[0] - 5;
+    p.mainCls1.x = width / 2 - rad[1] + 5;
   
     p.dist = function(p1, p2) {
       return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
@@ -299,13 +314,13 @@ var sketch = function(p){
         //dot.y / height;
         p.map(dot.y, 0, height, 0, 1);
   
-      if (dot.cls && p.dist(dot, p.purpleMain) <= rad[1]) {
+      if (dot.cls && p.dist(dot, p.mainCls1) <= rad[1]) {
         p.points.push(dot);
         p.X1.push(normX1);
         // console.log(dot.x)
         p.X2.push(normX2);
         p.Y.push(dot.cls);
-      } else if (!dot.cls && p.dist(dot, p.greenMain) <= rad[0]) {
+      } else if (!dot.cls && p.dist(dot, p.mainCls2) <= rad[0]) {
         p.points.push(dot);
         p.X1.push(normX1);
         // console.log(dot.x)
@@ -410,7 +425,8 @@ p.coloringSepSides = function(x1, y1, x2, y2) {
   }
   
 }
-var sizep5 = new p5(sketch);
-var dist5p2 = new p5(sketchDist);
+
+let sizep5 = new p5(sketch);
+let dist5p2 = new p5(sketchDist);
 
 

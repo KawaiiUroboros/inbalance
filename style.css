@@ -1,3 +1,9 @@
+* { box-sizing: border-box;}
+body{margin: 0; padding: 0;}
+canvas{
+  box-shadow: 0 0 10px 2px lightgrey;
+  /* border: 20px dotted tomato; */
+}
 label,
 label p {
   margin: 0;
